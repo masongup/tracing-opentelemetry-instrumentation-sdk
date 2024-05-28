@@ -69,8 +69,8 @@ pub fn find_current_context() -> Context {
     tracing::Span::current().context()
 }
 
-/// Search the current opentelemetry trace id into the Context from the current tracing'span.
-/// This function can be used to report the trace id into the error message send back to user.
+/// Retrieve the current opentelemetry trace id from the Context from the current tracing span.
+/// This function can be used to retrieve the trace id for insertion into an error message sent back to user.
 ///
 /// ```rust
 /// let trace_id = tracing_opentelemetry_instrumentation_sdk::find_current_trace_id();
@@ -81,6 +81,20 @@ pub fn find_current_context() -> Context {
 #[must_use]
 pub fn find_current_trace_id() -> Option<String> {
     find_trace_id(&find_current_context())
+}
+
+/// Retrieve the current opentelemetry span id from the Context from the current tracing span.
+/// This function can be used to retrieve the span id for insertion into an error message sent back to user.
+///
+/// ```rust
+/// let span_id = tracing_opentelemetry_instrumentation_sdk::find_current_span_id();
+/// // json!({ "error" :  "xxxxxx", "span_id": span_id})
+///
+/// ```
+#[inline]
+#[must_use]
+pub fn find_current_span_id() -> Option<String> {
+    find_span_id(&find_current_context())
 }
 
 #[inline]
@@ -99,6 +113,13 @@ pub fn find_trace_id_from_tracing(span: &tracing::Span) -> Option<String> {
     // let context = opentelemetry::Context::current();
     // OpenTelemetry Context is propagation inside code is done via tracing crate
     find_trace_id(&span.context())
+}
+
+#[inline]
+#[must_use]
+pub fn find_span_id_from_tracing(span: &tracing::Span) -> Option<String> {
+    use tracing_opentelemetry::OpenTelemetrySpanExt;
+    find_span_id(&span.context())
 }
 
 #[inline]
